@@ -27,20 +27,39 @@ public class PositionPlayerRandomlyHandler extends BaseClientRequestHandler {
 	@Override
 	public void handleClientRequest(User user, ISFSObject arg1) {
 		// TODO Auto-generated method stub
+		ISFSMMOApi mmoApi = SmartFoxServer.getInstance().getAPIManager().getMMOApi();
+		Room room = user.getCurrentMMORoom();
+		
+		Vec3D pos = new Vec3D(0.0f, 0.0f);
+		mmoApi.setUserPosition(user, pos, room);
+		sendSetOnMapResponse(pos, user);
+
+		setUserVariables(user);
+	}
+	
+	private Vec3D getRandomPosition() {
+
 		Random r = new Random();
 		int randomX = r.nextInt(2 * width) - width;
 		int randomY = r.nextInt(2 * height) - height;
-		ISFSMMOApi mmoApi = SmartFoxServer.getInstance().getAPIManager().getMMOApi();
-		Vec3D pos = new Vec3D((float)randomX, (float)randomY);
-		Room room = user.getCurrentMMORoom();
-		mmoApi.setUserPosition(user, pos, room);
-		trace("Should set new user Position" + user.getName()+" " + mmoApi);
-		sendSetOnMapResponse(pos, user);
-		addNPC(user);
+		
+		return new Vec3D((float)randomX, (float)randomY);
+	}
+	
+	private void setUserVariables(User user){
 		ISFSApi api = SmartFoxServer.getInstance().getAPIManager().getSFSApi();
+		List<UserVariable> variables = initialUserVars();
+		api.setUserVariables(user, variables);
+	}
+	
+	private List<UserVariable> initialUserVars() {
 		List<UserVariable> variables = new ArrayList<>();
 		variables.add(new SFSUserVariable("rot", 0.0f));
-		api.setUserVariables(user, variables);
+		variables.add(new SFSUserVariable("hp", 100.0f));
+		SFSUserVariable var = new SFSUserVariable("lastAttack", 0.0d);
+		var.setHidden(true);
+		variables.add(var);
+		return variables;
 	}
 	
 	private void sendSetOnMapResponse(Vec3D pos, User user) {
@@ -61,6 +80,8 @@ public class PositionPlayerRandomlyHandler extends BaseClientRequestHandler {
 			mmoApi.setUserPosition(npc, pos, user.getCurrentMMORoom());
 			List<UserVariable> variables = new ArrayList<>();
 			variables.add(new SFSUserVariable("rot", 0.0f));
+			variables.add(new SFSUserVariable("atk", true));
+			variables.add(new SFSUserVariable("hp", 100.0f));
 			api.setUserVariables(npc, variables);
 			trace("Created NPC");
 			
