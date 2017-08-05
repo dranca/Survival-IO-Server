@@ -15,6 +15,7 @@ import com.smartfoxserver.v2.extensions.BaseServerEventHandler;
 import com.smartfoxserver.v2.mmo.Vec3D;
 
 import Actions.UsersAttackManager;
+import Helpers.UserHelper;
 
 public class UserVariablesHandler extends BaseServerEventHandler {
 	@Override
@@ -31,12 +32,7 @@ public class UserVariablesHandler extends BaseServerEventHandler {
             varMap.put(var.getName(), var);
         }
         if (varMap.containsKey("x") && varMap.containsKey("y")) {
-            Vec3D pos = new Vec3D
-            (
-                varMap.get("x").getDoubleValue().floatValue(),
-                1.0f,
-                varMap.get("y").getDoubleValue().floatValue()
-            );
+            Vec3D pos = UserHelper.userPos(user);
             ISFSMMOApi mmoApi = SmartFoxServer.getInstance().getAPIManager().getMMOApi();
             mmoApi.setUserPosition(user, pos, user.getCurrentMMORoom());
         }

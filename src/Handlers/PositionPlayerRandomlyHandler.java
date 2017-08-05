@@ -80,10 +80,8 @@ public class PositionPlayerRandomlyHandler extends BaseClientRequestHandler {
 			mmoApi.setUserPosition(npc, pos, user.getCurrentMMORoom());
 			List<UserVariable> variables = initialUserVars();
 			api.setUserVariables(npc, variables);
-			
 		} catch (SFSLoginException | SFSJoinRoomException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
 		}
 	}
 }

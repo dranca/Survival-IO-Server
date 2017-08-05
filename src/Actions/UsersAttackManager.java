@@ -15,7 +15,13 @@ import com.smartfoxserver.v2.entities.variables.SFSUserVariable;
 import com.smartfoxserver.v2.entities.variables.UserVariable;
 import com.smartfoxserver.v2.mmo.Vec3D;
 
+import Helpers.UserHelper;
 import Logger.LoggerSFS;
+
+class ConstantsUAM {
+	static long timerClicksPerSecond = 10;
+	static long targetingRadius = 90;
+}
 
 public class UsersAttackManager {
 	
@@ -38,7 +44,7 @@ public class UsersAttackManager {
 					}
 				}
 			}
-		}, 0, 100);
+		}, 0, 1000 / ConstantsUAM.timerClicksPerSecond);
 	}
 	
 	public static UsersAttackManager instance() {
@@ -59,7 +65,8 @@ public class UsersAttackManager {
 		long currentServerTime = user.getLastRequestTime();
 		if (attacks.containsKey(user)) {
 			long lastAttack = attacks.get(user);
-			if (currentServerTime - lastAttack < 1000) {
+			double weaponDelay = weaponAttackDelay(user);
+			if (currentServerTime - lastAttack < weaponDelay) {
 				return;
 			}
 		}
@@ -70,7 +77,7 @@ public class UsersAttackManager {
 		LoggerSFS.log("Users found: " + usersInRange);
 		for (User target : usersInRange) {
 			LoggerSFS.log("Have found an user");
-			if (userIsInFront(user, target)) {
+			if (userIsInFront(UserHelper.userPos(user), UserHelper.userPos(target), UserHelper.userRotation(user))) {
 				LoggerSFS.log("User Is In Front");
 				float prevHP = target.getVariable("hp").getDoubleValue().floatValue();
 				List<UserVariable> variables = new ArrayList<>();
@@ -87,24 +94,35 @@ public class UsersAttackManager {
 		}
 	}
 	
+	private static double weaponAttackDelay(User user) {
+		return 500;
+	}
+	
 	private static float damage(User user, User target) {
 		// TODO Add propper implementation
-		return 10.0f;
+		return 5.0f;
 	}
 	
-	private static boolean userIsInFront(User currentUser, User target){
-		float rotation = currentUser.getVariable("rot").getDoubleValue().floatValue();
-		// TODO add propper implementation
-		if (rotation < 90) {
-			
-		} else if (rotation < 180) {
-			
-		} else if (rotation < 270) {
-			
-		} else {
-			
+	public static boolean userIsInFront(Vec3D currentUserPos, Vec3D targetPos, float rotation){
+		Vec3D targetPositionDiff = new Vec3D(targetPos.floatX() - currentUserPos.floatX(), targetPos.floatY() - currentUserPos.floatY());
+		float angle = getAngle(targetPositionDiff.floatX(), targetPositionDiff.floatY());
+		long targetingRotation = ConstantsUAM.targetingRadius / 2;
+		float minRotation = rotation - targetingRotation;
+		float maxRotation = rotation + targetingRotation;
+		return angleIsInRange(minRotation, maxRotation, angle);
+	}
+	
+	public static Boolean angleIsInRange(float min, float max, float angle) { 
+		return angle >= min && angle <= max;
+	}
+	
+	public static float getAngle(float x, float y) {
+		float angle = (float) Math.toDegrees(Math.atan2(x, y));
+
+		if(angle < 0){
+		    angle += 360;
 		}
-		return true;
+
+		return angle;
 	}
-	
 }
