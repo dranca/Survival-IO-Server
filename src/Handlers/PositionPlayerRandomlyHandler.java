@@ -33,7 +33,7 @@ public class PositionPlayerRandomlyHandler extends BaseClientRequestHandler {
 		Vec3D pos = new Vec3D(0.0f, 0.0f);
 		mmoApi.setUserPosition(user, pos, room);
 		sendSetOnMapResponse(pos, user);
-
+		addNPC(user);
 		setUserVariables(user);
 	}
 	
@@ -55,7 +55,7 @@ public class PositionPlayerRandomlyHandler extends BaseClientRequestHandler {
 	private List<UserVariable> initialUserVars() {
 		List<UserVariable> variables = new ArrayList<>();
 		variables.add(new SFSUserVariable("rot", 0.0f));
-		variables.add(new SFSUserVariable("hp", 100.0f));
+		variables.add(new SFSUserVariable("hp", 1000.0f));
 		SFSUserVariable var = new SFSUserVariable("lastAttack", 0.0d);
 		var.setHidden(true);
 		variables.add(var);
@@ -78,12 +78,8 @@ public class PositionPlayerRandomlyHandler extends BaseClientRequestHandler {
 			api.joinRoom(npc, user.getCurrentMMORoom());
 			ISFSMMOApi mmoApi = SmartFoxServer.getInstance().getAPIManager().getMMOApi();
 			mmoApi.setUserPosition(npc, pos, user.getCurrentMMORoom());
-			List<UserVariable> variables = new ArrayList<>();
-			variables.add(new SFSUserVariable("rot", 0.0f));
-			variables.add(new SFSUserVariable("atk", true));
-			variables.add(new SFSUserVariable("hp", 100.0f));
+			List<UserVariable> variables = initialUserVars();
 			api.setUserVariables(npc, variables);
-			trace("Created NPC");
 			
 		} catch (SFSLoginException | SFSJoinRoomException e) {
 			// TODO Auto-generated catch block

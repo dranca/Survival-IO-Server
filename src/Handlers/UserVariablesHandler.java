@@ -1,17 +1,14 @@
 package Handlers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.smartfoxserver.v2.SmartFoxServer;
-import com.smartfoxserver.v2.api.ISFSApi;
 import com.smartfoxserver.v2.api.ISFSMMOApi;
 import com.smartfoxserver.v2.core.ISFSEvent;
 import com.smartfoxserver.v2.core.SFSEventParam;
 import com.smartfoxserver.v2.entities.User;
-import com.smartfoxserver.v2.entities.variables.SFSUserVariable;
 import com.smartfoxserver.v2.entities.variables.UserVariable;
 import com.smartfoxserver.v2.exceptions.SFSException;
 import com.smartfoxserver.v2.extensions.BaseServerEventHandler;
@@ -33,8 +30,7 @@ public class UserVariablesHandler extends BaseServerEventHandler {
         {
             varMap.put(var.getName(), var);
         }
-        if (varMap.containsKey("x") && varMap.containsKey("y"))
-        {
+        if (varMap.containsKey("x") && varMap.containsKey("y")) {
             Vec3D pos = new Vec3D
             (
                 varMap.get("x").getDoubleValue().floatValue(),
@@ -45,33 +41,12 @@ public class UserVariablesHandler extends BaseServerEventHandler {
             mmoApi.setUserPosition(user, pos, user.getCurrentMMORoom());
         }
         if (varMap.containsKey("atk")) { 
-        	trace("atk");
-        	if (canAttack(user)) {
-        		trace("Can attack");
-        		UsersAttackManager.attack(user);
+        	Boolean attacking = user.getVariable("atk").getBoolValue();
+        	if (attacking) {
+        		UsersAttackManager.instance().userStartedAttacking(user);
+        	} else {
+        		UsersAttackManager.instance().userStoppedAttacking(user);
         	}
         }
     }
-	
-	
-	private boolean canAttack(User user) {
-		double lastAttack = user.getVariable("lastAttack").getDoubleValue();
-		trace(lastAttack + " : " + user.getLastRequestTime());
-		if (user.getLastRequestTime() - lastAttack > 1000) {
-			setLastAttackTimer(user);
-			return true;
-		} else {
-			return false;
-		}
-		
-	}
-	
-	private void setLastAttackTimer(User user){
-		List<UserVariable> variables = new ArrayList<>();
-		SFSUserVariable var = new SFSUserVariable("lastAttack", user.getLastRequestTime());
-		var.setHidden(true);
-		variables.add(var);
-		ISFSApi api = SmartFoxServer.getInstance().getAPIManager().getSFSApi();
-		api.setUserVariables(user, variables);
-	}
 }
