@@ -19,6 +19,9 @@ import com.smartfoxserver.v2.exceptions.SFSLoginException;
 import com.smartfoxserver.v2.extensions.BaseClientRequestHandler;
 import com.smartfoxserver.v2.mmo.Vec3D;
 
+import Inventory.InventoryManager;
+import Inventory.InventoryObject;
+
 public class PositionPlayerRandomlyHandler extends BaseClientRequestHandler {
 
 	int width = 25;
@@ -38,7 +41,6 @@ public class PositionPlayerRandomlyHandler extends BaseClientRequestHandler {
 	}
 	
 	private Vec3D getRandomPosition() {
-
 		Random r = new Random();
 		int randomX = r.nextInt(2 * width) - width;
 		int randomY = r.nextInt(2 * height) - height;
@@ -50,6 +52,10 @@ public class PositionPlayerRandomlyHandler extends BaseClientRequestHandler {
 		ISFSApi api = SmartFoxServer.getInstance().getAPIManager().getSFSApi();
 		List<UserVariable> variables = initialUserVars();
 		api.setUserVariables(user, variables);
+		InventoryObject test = new InventoryObject();
+		test.itemId = "0";
+		test.quantity = 1;
+		InventoryManager.addItemInInventory(user, test);
 	}
 	
 	private List<UserVariable> initialUserVars() {

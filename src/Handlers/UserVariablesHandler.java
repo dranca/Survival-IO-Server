@@ -16,11 +16,14 @@ import com.smartfoxserver.v2.mmo.Vec3D;
 
 import Actions.UsersAttackManager;
 import Helpers.UserHelper;
+import Inventory.InventoryManager;
+import Inventory.InventoryObject;
 
 public class UserVariablesHandler extends BaseServerEventHandler {
 	@Override
     public void handleServerEvent(ISFSEvent event) throws SFSException
     {
+		// This will be called ONLY when the client sets the variables.
         @SuppressWarnings("unchecked")
         List<UserVariable> variables = (List<UserVariable>) event.getParameter(SFSEventParam.VARIABLES);
         User user = (User) event.getParameter(SFSEventParam.USER);
@@ -43,6 +46,10 @@ public class UserVariablesHandler extends BaseServerEventHandler {
         	} else {
         		UsersAttackManager.instance().userStoppedAttacking(user);
         	}
+        }
+        
+        if (varMap.containsKey(InventoryManager.inventoryKey)) {
+        	InventoryManager.handleInventoryStatusChanged(user);
         }
     }
 }
